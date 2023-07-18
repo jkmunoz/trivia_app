@@ -84,9 +84,9 @@ Clicking on the page numbers should update the questions.
     @TODO:
     Create an endpoint to DELETE question using a question ID.
 
-    TEST: When you click the trash icon next to a question, the question will be removed.
-    This removal will persist in the database and when you refresh the page.
-    """
+TEST: When you click the trash icon next to a question, the question will be removed.
+This removal will persist in the database and when you refresh the page.
+"""
     @app.route('/questions/<int:question_id>', mothods=['DELETE'])
     def delete_question(q_id):
         try:
@@ -108,10 +108,47 @@ Clicking on the page numbers should update the questions.
     which will require the question and answer text,
     category, and difficulty score.
 
-    TEST: When you submit a question on the "Add" tab,
-    the form will clear and the question will appear at the end of the last page
-    of the questions list in the "List" tab.
-    """
+TEST: When you submit a question on the "Add" tab,
+the form will clear and the question will appear at the end of the last page
+of the questions list in the "List" tab.
+"""
+
+    @app.route('/questions/create', methods=['POST'])
+    def create_question():
+        body = request.get_json()
+
+        new_question = body.get('question', None)
+        new_answer = body.get('answer', None)
+        new_category = body.get('category', None)
+        new_rating = body.get('difficulty', None)
+        search = body.get('search', None)
+
+        try:
+            if search:
+                questions = Question.query.order(Question.id).filter(
+                    Question.title.ilike("%{}%".format(search))
+                )
+                question_set = paginate_questions(request, questions)
+
+                return jsonify({
+                    'success': True, 
+                    'books': question_set, 
+                    'all_questions': len(questions.all()), 
+                })
+            else: 
+                entry = Question(question=new_question, answer=new_answer, 
+                                category=new_category, difficulty=new_rating)
+                entry.insert()
+
+                questions = Question.query.order_by(Question.id).all()
+                question_set = paginate_questions(request, questions)
+
+                return jsonify ({
+                    'success': True, 
+                    'question created': Question.id, 
+                })
+        except:
+            abort(422)
 
     """
     @TODO:
@@ -123,6 +160,8 @@ Clicking on the page numbers should update the questions.
     only question that include that string within their question.
     Try using the word "title" to start.
     """
+
+
 
     """
     @TODO:
