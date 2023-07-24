@@ -41,6 +41,10 @@ def create_app(test_config=None):
         return response
 
    
+    @app.route('/')
+    def index():
+        return 'Welcome to Trivia API'
+    
     """
     @TODO:
     Create an endpoint to handle GET requests
@@ -50,10 +54,13 @@ def create_app(test_config=None):
     @app.route("/categories", methods=['GET'])
     def get_categories():
         categories = Category.query.order_by(Category.id).all()
-# how to add current chosen category?
-        # current_category = 
-        return categories
+        formatted_categories = [Category.format() for category in categories]
 
+        return jsonify({
+            'success': True, 
+            'categories': formatted_categories, 
+            'current_category': None, 
+        })
     """
     @TODO:
     Create an endpoint to handle GET requests for questions,
@@ -66,17 +73,20 @@ you should see questions and categories generated,
 ten questions per page and pagination at the bottom of the screen for three pages.
 Clicking on the page numbers should update the questions.
     """
-    @app.route("/questions", methods=['GET'])
+    @app.route('/questions', methods=['GET'])
     def get_questions():
-# how to order by category?
-        questions = Question.query.all()
-        question_set = paginate_questions(request, questions)
+        totalQuestions = Question.query.order_by(Question.id).all()
+        formatted_questions = paginate_questions(request, totalQuestions)
+
+        categories = Category.query.order_by(Category.id).all()
+        formatted_categories = [Category.format() for category in categories]
+        
         return jsonify({
-            'questions': question_set, 
-# How to get all categories AND current category?
-            # 'categories': ??, 
-            # 'current category': ??, 
-            'total_questions': len(Question.query.all())
+            'success': True, 
+            'questions': formatted_questions, 
+            'total_questions': len(formatted_questions), 
+            'current_category': None, 
+            'all_categories': formatted_categories,             
         })
 
 
