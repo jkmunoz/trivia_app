@@ -73,8 +73,8 @@ you should see questions and categories generated,
 ten questions per page and pagination at the bottom of the screen for three pages.
 Clicking on the page numbers should update the questions.
     """
-    @app.route('/questions', methods=['GET'])
-    def get_questions():
+    @app.route('/questions?page=${this.state.page}', methods=['GET'])
+    def getQuestions():
         totalQuestions = Question.query.order_by(Question.id).all()
         formatted_questions = paginate_questions(request, totalQuestions)
 
@@ -86,7 +86,7 @@ Clicking on the page numbers should update the questions.
             'questions': formatted_questions, 
             'total_questions': len(formatted_questions), 
             'current_category': None, 
-            'all_categories': formatted_categories,             
+            'categories': formatted_categories,             
         })
 
 
@@ -134,7 +134,7 @@ only question that include that string within their question.
 Try using the word "title" to start.
 """
     @app.route('/questions/create', methods=['POST'])
-    def create_question():
+    def submitQuestion():
         body = request.get_json()
 
         new_question = body.get('question', None)
